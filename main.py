@@ -13,12 +13,14 @@ def giveaway():
     if not rid: return jsonify({"error": "Role Id (rid) is required"}), 400
     print(f"{rid} /// {request.method}")
     if request.method == "POST":
-        if rid in rdb: return jsonify({"message": ""}), 201
+        if rid in rdb: return jsonify(), 201
         rdb.append(rid)
-        return jsonify({"message": ""}), 200
+        return jsonify(), 200
     elif request.method == "GET":
-        if rid in rdb: return jsonify({"message": ""}), 200
-        else: return jsonify({"message": ""}), 400
+        if rid in rdb: 
+            rdb.remove(rid)
+            return jsonify(), 200
+        else: return jsonify(), 400
 
 
 if __name__ == "__main__":
