@@ -5,7 +5,7 @@ rdb = []
 
 @app.route('/giveway', methods=['POST', 'GET'])
 def giveaway():
-    rid = request.json.get('rid')
+    rid = request.headers.get('rid')
     if not rid: return jsonify({"error": "Role Id (rid) is required"}), 400
 
     if request.method == "POST":
