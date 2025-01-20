@@ -16,7 +16,7 @@ def giveaway():
         if not giveawayId:             return jsonify({"message": "Failure | giveaway id required"}), 400
         if giveawayId not in giveaways: return jsonify({"message": "Failure | giveaway id not found"}), 400
 
-        giveaways.remove(int(id))
+        giveaways.remove(int(giveawayId))
 
         return jsonify({"message": "Success"}), 200
     elif request.method == "GET":
@@ -29,4 +29,4 @@ def giveaway():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=9472)
+    app.run(host="0.0.0.0",port=8080)
