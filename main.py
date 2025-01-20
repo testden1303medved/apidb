@@ -1,5 +1,5 @@
-from flask import Flask, jsonify, request
-import random
+from flask  import Flask, jsonify, request
+from random import *
 
 app = Flask(__name__)
 giveaways = []
@@ -11,20 +11,17 @@ def index():
 @app.route('/giveaway', methods=['DELETE', 'GET'])
 def giveaway():
     if request.method == "DELETE":
-        giveawayId = request.json.get("id")
-
-        print(f"{giveawayId}")
-        print(f"{giveaways}")
+        giveawayId = request.json.get("gwid")
 
         if not giveawayId:             return jsonify({"message": "Failure | giveaway id required"}), 400
         if giveawayId not in giveaways: return jsonify({"message": "Failure | giveaway id not found"}), 400
 
-        giveaways.remove(int(giveawayId))
+        giveaways.remove(giveawayId)
 
         return jsonify({"message": "Success"}), 200
     elif request.method == "GET":
 
-        randomgiveawayId = random.randint(0, 9999999999999999)
+        randomgiveawayId = f"{randint(0,9999)}-{randint(0,9999)}-{randint(0,9999)}-{randint(0,9999)}"
         
         giveaways.append(randomgiveawayId)
 
