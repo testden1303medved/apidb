@@ -13,8 +13,8 @@ def giveaway():
     if request.method == "DELETE":
         giveawayId = request.json.get("id")
 
-        print(f"{givewayId}")
-        print(f"{giveways}")
+        print(f"{giveawayId}")
+        print(f"{giveaways}")
 
         if not giveawayId:             return jsonify({"message": "Failure | giveaway id required"}), 400
         if giveawayId not in giveaways: return jsonify({"message": "Failure | giveaway id not found"}), 400
