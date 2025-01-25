@@ -1,9 +1,7 @@
 from flask   import Flask, jsonify, request
 from random  import randint
-from pysondb import getDb
 
 app = Flask(__name__)
-pdb = getDb()
 
 class RolesHandler:
     def __init__(self):
