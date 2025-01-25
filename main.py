@@ -94,7 +94,7 @@ def customroles():
         if not roles:
             return jsonify({"message": "userId not found"}), 404
 
-        return jsonify({"userId": userId, "roleIds": roles}), 200
+        return jsonify({"userId": userId, "roleIds": list(roles)}), 200
 
     if request.method == "POST":
         userId = request.json.get("userId")
