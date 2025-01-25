@@ -1,32 +1,22 @@
-from flask   import Flask, jsonify, request
-from random  import randint
+from flask import Flask, jsonify, request
+from random import randint
 
 app = Flask(__name__)
 
 class RolesHandler:
     def __init__(self):
         self.db = {
-            123: [123, 456]  # userId: [roleId1, roleId2, ...]
+            123: 123  # userId: roleId
         }
 
     def add(self, user, role):
-        user = int(user)
-        role = int(role)
-        if user not in self.db:
-            self.db[user] = []
-        if role not in self.db[user]:
-            self.db[user].append(role)
+        self.db[int(user)] = int(role)
 
-    def rem(self, user, role):
-        user = int(user)
-        role = int(role)
-        if user in self.db and role in self.db[user]:
-            self.db[user].remove(role)
-            if not self.db[user]:  # Remove user if no roles left
-                del self.db[user]
+    def rem(self, user):
+        self.db.pop(int(user))
 
     def get(self, user):
-        return self.db.get(int(user), [])
+        return self.db.get(int(user), None)
 
 class Handler:
     def __init__(self):
@@ -90,11 +80,11 @@ def customroles():
         if not userId:
             return jsonify({"message": "userId required"}), 400
 
-        roles = rh.get(userId)
-        if not roles:
+        role = rh.get(userId)
+        if role is None:
             return jsonify({"message": "userId not found"}), 404
 
-        return jsonify({"userId": userId, "roleIds": list(roles)}), 200
+        return jsonify({"userId": userId, "roleId": role}), 200
 
     if request.method == "POST":
         userId = request.json.get("userId")
@@ -104,6 +94,9 @@ def customroles():
             return jsonify({"message": "userId required"}), 400
         if not roleId:
             return jsonify({"message": "roleId required"}), 400
+
+        if userId in rh.db:
+            return jsonify({"message": "Role already exists for user"}), 204
 
         rh.add(userId, roleId)
         return jsonify({"message": "Role added successfully"}), 201
@@ -117,10 +110,10 @@ def customroles():
         if not roleId:
             return jsonify({"message": "roleId required"}), 400
 
-        if userId not in rh.db or roleId not in rh.db[int(userId)]:
-            return jsonify({"message": "Role not found for user"}), 404
+        if userId not in rh.db:
+            return jsonify({"message": "userId not found"}), 400
 
-        rh.rem(userId, roleId)
+        rh.rem(userId)
         return jsonify({"message": "Role removed successfully"}), 200
 
 if __name__ == "__main__":
