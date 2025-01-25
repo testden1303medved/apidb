@@ -2,31 +2,61 @@ from flask  import Flask, jsonify, request
 from random import *
 
 app = Flask(__name__)
-giveaways = []
+
+class Handler():
+    def __init__(self):
+        self.db = []
+
+    def add(self, data): self.db.append(data)
+    def rem(self, data): self.db.remove(data)
+
+    def generateId(self) -> str:
+        randstr = f"{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}"
+        return randstr
+    
+hand = Handler()
 
 @app.route("/")
 def index():
     return "Hello, World!"
 
-@app.route('/giveaway', methods=['DELETE', 'GET'])
-def giveaway():
-    if request.method == "DELETE":
-        giveawayId = request.json.get("gwid")
-
-        if not giveawayId:             return jsonify({"message": "Failure | giveaway id required"}), 400
-        if giveawayId not in giveaways: return jsonify({"message": "Failure | giveaway id not found"}), 400
-
-        giveaways.remove(giveawayId)
-
-        return jsonify({"message": "Success"}), 200
-    elif request.method == "GET":
-
-        randomgiveawayId = f"{randint(0,9999)}-{randint(0,9999)}-{randint(0,9999)}-{randint(0,9999)}"
+@app.route('/giveaways', methods=['GET', 'DELETE'])
+def gws():
+    if request.method == "GET":
         
-        giveaways.append(randomgiveawayId)
+        GWID = hand.generateId()
+        hand.add(GWID)
 
-        return jsonify({"message": f"Success | {randomgiveawayId}"}), 200
+        return jsonify({"message": f"{GWID}"}), 200
 
+    elif request.method == "DELETE":
+        GWID = request.json.get("GWID")
+
+        if not GWID:            return jsonify({"message": "GWID required"}), 400
+        if GWID not in hand.db: return jsonify({"message": "GWID not found"}), 400
+
+        hand.rem(GWID)
+
+        return jsonify({"message": ""}), 200
+
+@app.route('/tickets', methods=['GET', 'DELETE'])
+def tks():
+    if request.method == "GET":
+        
+        TKID = hand.generateId()
+        hand.add(TKID)
+
+        return jsonify({"message": f"{TKID}"}), 200
+
+    elif request.method == "DELETE":
+        TKID = request.json.get("TKID")
+
+        if not TKID:            return jsonify({"message": "TKID required"}), 400
+        if TKID not in hand.db: return jsonify({"message": "TKID not found"}), 400
+
+        hand.rem(TKID)
+
+        return jsonify({"message": ""}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=8080)
