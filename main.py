@@ -10,13 +10,13 @@ class RolesHandler:
         }
 
     def add(self, user, role):
-        self.db[int(user)] = int(role)
+        self.db[user] = role
 
     def rem(self, user):
-        self.db.pop(int(user))
+        self.db.pop(user)
 
     def get(self, user):
-        return self.db.get(int(user), None)
+        return self.db.get(user, None)
 
 class Handler:
     def __init__(self):
@@ -76,19 +76,19 @@ def tickets():
 @app.route('/roles', methods=['GET', 'POST', 'DELETE'])
 def customroles():
     if request.method == "GET":
-        userId = request.args.get("userId")
+        userId = int(request.args.get("userId"))
         if not userId:
             return jsonify({"message": "userId required"}), 400
 
-        role = rh.get(userId)
+        role = rh.get(int(userId))
         if role is None:
             return jsonify({"message": "userId not found"}), 404
 
         return jsonify({"userId": userId, "roleId": role}), 200
 
     if request.method == "POST":
-        userId = request.json.get("userId")
-        roleId = request.json.get("roleId")
+        userId = int(request.json.get("userId"))
+        roleId = int(request.json.get("roleId"))
 
         if not userId:
             return jsonify({"message": "userId required"}), 400
@@ -102,8 +102,8 @@ def customroles():
         return jsonify({"message": "Role added successfully"}), 201
 
     if request.method == "DELETE":
-        userId = request.json.get("userId")
-        roleId = request.json.get("roleId")
+        userId = int(request.json.get("userId"))
+        roleId = int(request.json.get("roleId"))
 
         if not userId:
             return jsonify({"message": "userId required"}), 400
