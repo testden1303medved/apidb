@@ -11,8 +11,10 @@ class Handler():
     def rem(self, data): self.db.remove(data)
 
     def generateId(self) -> str:
-        randstr = f"{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}"
-        return randstr
+        while True:
+            randstr = f"{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}-{randint(1000,9999)}"
+            if randstr not in self.db:
+                return randstr
     
 hand = Handler()
 
