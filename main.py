@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from random import randint
+import requests
 import json
 import os
 
@@ -192,6 +193,14 @@ def balance():
         balance_data[userId] = new_balance
         _balance._write(balance_data)
         return jsonify({"message": "Balance updated successfully"}), 200
+
+@app.route('/avatar', methods=["GET"])
+def avatarURL():
+    if request.method == "GET":
+        userId = request.args.get("userId")
+
+        r = requests.get(f"https://discord.com/api/v10/users/{userId}").json()
+        return jsonify({userId: f"https://cdn.discordapp.com/avatars/{userId}/{r.get('avatar')}.webp?size=128"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
