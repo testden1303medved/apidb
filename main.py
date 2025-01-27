@@ -149,14 +149,9 @@ def balance():
             return jsonify({"message": "userId required"}), 400
         if amount is None:
             return jsonify({"message": "amount required"}), 400
-
-        balance_data = _balance._read()
-        if userId in balance_data:
-            # Update existing balance
-            balance_data[userId] += amount
-        else:
-            # Add new user with initial balance
-            balance_data[userId] = amount
+            
+        # Add new user with initial balance
+        balance_data[userId] = amount
 
         _balance._write(balance_data)
         return jsonify({"message": "Balance updated successfully"}), 200
