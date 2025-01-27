@@ -29,10 +29,6 @@ class Database:
             data[key] = value
             self._write(data)
 
-    def search(self, query):
-        data = self._read()
-        return {key: value for key, value in data.items() if query in key}
-
     def remove(self, query):
         data = self._read()
         if query in data:
@@ -93,11 +89,11 @@ def customroles():
         if not userId:
             return jsonify({"message": "userId required"}), 400
 
-        users = _customs.search(userId)
-        if not users:
-            return jsonify({"message": "userId not found"}), 404
+        users = _customs._read()  # Read the current data
+        if userId not in users:
+            return jsonify({"message": "userId not found"}), 404  # Return 404 if userId is not found
 
-        return jsonify(users), 200
+        return jsonify({userId: users[userId]}), 200  # Return the role of the user
 
     if request.method == "POST":
         userId = request.json.get("userId")
@@ -108,12 +104,11 @@ def customroles():
         if not roleId:
             return jsonify({"message": "roleId required"}), 400
         
-        user = _customs.search(userId)
-        if user:
-            return jsonify({"message": "Role already exists for user"}), 409
+        users = _customs._read()
+        users[userId] = roleId
 
-        _customs.add(userId, roleId)
-        return jsonify({"message": "Role added successfully"}), 201
+        _customs._write(users)
+        return jsonify({"message": "Role created successfully"}), 200
 
     if request.method == "DELETE":
         userId = request.json.get("userId")
@@ -121,11 +116,12 @@ def customroles():
         if not userId:
             return jsonify({"message": "userId required"}), 400
 
-        user = _customs.search(userId)
-        if not user:
+        users = _customs._read()
+        if userId not in users:
             return jsonify({"message": "userId not found"}), 404
 
-        _customs.remove(userId)
+        del users[userId]
+        _customs._write(users)
         return jsonify({"message": "Role removed successfully"}), 200
 
 @app.route('/balance', methods=['GET', 'POST', 'DELETE'])
@@ -135,9 +131,11 @@ def balance():
         if not userId:
             return jsonify({"message": "userId required"}), 400
 
-        balance_data = _balance.search(userId)
+        balance_data = _balance._read()
+        
         if userId not in balance_data:
-            return jsonify({"message": "userId not found"}), 404
+            balance_data[userId] = 0
+            _balance._write(balance_data)
 
         return jsonify({userId: balance_data[userId]}), 200
 
@@ -149,9 +147,10 @@ def balance():
             return jsonify({"message": "userId required"}), 400
         if amount is None:
             return jsonify({"message": "amount required"}), 400
-            
-        # Add new user with initial balance
-        balance_data[userId] = amount
+
+        balance_data = _balance._read()
+        if userId in balance_data:
+            balance_data[userId] = amount
 
         _balance._write(balance_data)
         return jsonify({"message": "Balance updated successfully"}), 200
@@ -168,7 +167,7 @@ def balance():
 
         del balance_data[userId]
         _balance._write(balance_data)
-        return jsonify({"message": "User  balance removed successfully"}), 200
+        return jsonify({"message": "User balance removed successfully"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
