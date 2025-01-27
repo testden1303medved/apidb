@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from random import randint
-import requests
+import discord
 import json
 import os
 
 app = Flask(__name__)
+bot = discord.Bot()
 
 class Database:
     def __init__(self, pathtofile):
@@ -198,9 +199,13 @@ def balance():
 def avatarURL():
     if request.method == "GET":
         userId = request.args.get("userId")
+        user = bot.get_user(int(userId))
+        if not user: return jsonify({}), 404
 
-        r = requests.get(f"https://discord.com/api/v10/users/{userId}").json()
-        return jsonify({userId: f"https://cdn.discordapp.com/avatars/{userId}/{r.get('avatar')}.webp?size=128"})
+        return jsonify({userId: user.avatar.url})
 
-if __name__ == "__main__":
+@bot.event
+async def on_ready():
     app.run(host="0.0.0.0", port=8080)
+
+bot.run(os.environ.get("TOKEN"))
