@@ -124,7 +124,7 @@ def customroles():
         _customs._write(users)
         return jsonify({"message": "Role removed successfully"}), 200
 
-@app.route('/balance', methods=['GET', 'POST', 'DELETE'])
+@app.route('/balance', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def balance():
     if request.method == "GET":
         userId = request.args.get("userId")
@@ -149,8 +149,7 @@ def balance():
             return jsonify({"message": "amount required"}), 400
 
         balance_data = _balance._read()
-        if userId in balance_data:
-            balance_data[userId] = amount
+        balance_data[userId] += amount
 
         _balance._write(balance_data)
         return jsonify({"message": "Balance updated successfully"}), 200
@@ -167,7 +166,29 @@ def balance():
 
         del balance_data[userId]
         _balance._write(balance_data)
-        return jsonify({"message": "User balance removed successfully"}), 200
+        return jsonify({"message": "User  balance removed successfully"}), 200
+
+    if request.method == "PUT":
+        userId = request.json.get("userId")
+        amount = request.json.get("amount")
+
+        if not userId:
+            return jsonify({"message": "userId required"}), 400
+        if amount is None:
+            return jsonify({"message": "amount required"}), 400
+
+        balance_data = _balance._read()
+        if userId not in balance_data:
+            return jsonify({"message": "userId not found"}), 404
+
+        # Remove money from the balance
+        new_balance = balance_data[userId] - amount
+        if new_balance < 0:
+            return jsonify({"message": "Insufficient balance"}), 400
+
+        balance_data[userId] = new_balance
+        _balance._write(balance_data)
+        return jsonify({"message": "Balance updated successfully"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
